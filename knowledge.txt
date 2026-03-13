@@ -1,0 +1,78 @@
+RITUAL NETWORK — KNOWLEDGE BASE
+
+Official links:
+- Website: https://ritual.net
+- Foundation: https://www.ritualfoundation.org
+- Twitter / X: https://x.com/ritualnet
+- Twitter Foundation: https://x.com/ritualfnd
+- GitHub: https://github.com/ritual-net
+- Docs: https://docs.ritual.net
+
+---
+
+WHAT IS RITUAL
+
+Ritual is a decentralized AI infrastructure project that connects artificial intelligence with blockchain. Its goal is to allow AI models, agents, and computations to run on a decentralized network instead of being controlled by a single company.
+
+Ritual is building the infrastructure layer for AI in Web3.
+
+The core problem Ritual solves: Smart contracts cannot natively call AI models. Computation happens on centralized servers and results cannot be verified on-chain. Ritual makes AI computation decentralized and verifiable.
+
+---
+
+MAIN PRODUCTS
+
+1. Infernet
+Infernet is Ritual's AI oracle network that connects smart contracts with AI models.
+
+How it works:
+- A smart contract sends a request for AI computation
+- Nodes in the Infernet network run the requested AI model
+- The result is returned to the blockchain with cryptographic proof
+
+Use cases:
+- data analysis and predictions
+- risk scoring and classification
+- automated decision-making
+- real-time data inference
+
+Infernet is already live. Developers can build with it today.
+
+2. Ritual Chain
+Ritual Chain is a Layer-1 blockchain designed specifically for AI computation.
+
+Unlike normal blockchains that optimize for transactions, Ritual Chain allows nodes to specialize in:
+- running AI models
+- verifying AI results
+- generating cryptographic proofs
+
+3. Verifiable Compute Layer (AI Execution Layer)
+The technical foundation that makes AI outputs trustworthy on-chain.
+
+Technologies used:
+- Zero-Knowledge proofs (ZK proofs) — full cryptographic verifiability
+- Trusted Execution Environments (TEE) — hardware-attested computation
+- Optimistic verification — faster and cheaper for lower-stakes use cases
+
+---
+
+KEY CONCEPTS
+
+- Verifiable AI: AI outputs cryptographically proven to be correct
+- Decentralized inference: Running AI models across distributed nodes
+- AI-powered smart contracts: Smart contracts that can call AI models
+- On-chain AI: AI computation results on blockchain in a trustless way
+
+---
+
+COMMUNITY
+
+- Community name: Ritualists
+- Mascot: Siggy (a cosmic cat from the Ritual universe)
+
+---
+
+ACCURACY NOTE
+
+The four main products are: Infernet, Ritual Chain, Verifiable Compute Layer, Shrine.
+Do not invent additional products or features not listed here.
