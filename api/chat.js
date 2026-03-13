@@ -8,74 +8,122 @@ const SYSTEM_MSG = systemPrompt + `
 
 ---
 OFFICIAL RITUAL KNOWLEDGE BASE
+(Use this as the primary source of truth when answering Ritual-related questions)
 
 ${knowledge}
 
 ---
 RULES:
-- Always prioritize the knowledge base for Ritual facts.
-- Do not invent information.
-- If unsure, say you are not certain.
+- Always prioritize the knowledge base above for Ritual-specific facts.
+- Do not invent information not listed there.
+- If unsure, say you are not certain instead of guessing.
+- NEVER use markdown formatting in responses: no **, no *, no #, no _, no backticks.
+- Write only clean plain text.
 `
 
 let history = [
   { role: "system", content: SYSTEM_MSG }
 ]
 
-export default async function handler(req, res) {
+const MAX_HISTORY = 10
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" })
+function trimHistory() {
+  if (history.length > MAX_HISTORY) {
+    history = [
+      history[0],
+      ...history.slice(history.length - (MAX_HISTORY - 1))
+    ]
   }
+}
+
+export default async function handler(req, res) {
 
   try {
 
-    const { message } = req.body
+    if (req.method === "POST") {
 
-    if (!message) {
-      return res.json({ reply: "Empty message" })
+      const { message } = req.body
+
+      if (!message || !message.trim()) {
+        return res.status(200).json({ reply: "Empty message" })
+      }
+
+      const userMessage = message.trim()
+
+      history.push({
+        role: "user",
+        content: userMessage
+      })
+
+      trimHistory()
+
+      const response = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + process.env.GROQ_API_KEY
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: history,
+            temperature: 0.7,
+            top_p: 0.9,
+            max_tokens: 800
+          })
+        }
+      )
+
+      if (!response.ok) {
+        const text = await response.text()
+        console.error("Groq error:", text)
+        return res.status(500).json({ reply: "AI service error" })
+      }
+
+      const data = await response.json()
+
+      let reply =
+        data.choices?.[0]?.message?.content?.trim() || "No response."
+
+      reply = reply
+        .replace(/\*\*(.+?)\*\*/g, "$1")
+        .replace(/\*(.+?)\*/g, "$1")
+        .replace(/`(.+?)`/g, "$1")
+        .replace(/#{1,6}\s/g, "")
+        .replace(/^\s*[-*+]\s/gm, "• ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+
+      history.push({
+        role: "assistant",
+        content: reply
+      })
+
+      trimHistory()
+
+      return res.status(200).json({ reply })
+
     }
 
-    history.push({
-      role: "user",
-      content: message
-    })
+    if (req.method === "GET") {
 
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: history,
-          temperature: 0.7,
-          max_tokens: 800
-        })
-      }
-    )
+      return res.status(200).json({
+        status: "ok",
+        apiKey: process.env.GROQ_API_KEY ? "set" : "missing",
+        historyLength: history.length
+      })
 
-    const data = await response.json()
-
-    const reply =
-      data.choices?.[0]?.message?.content?.trim() || "No response."
-
-    history.push({
-      role: "assistant",
-      content: reply
-    })
-
-    res.status(200).json({ reply })
+    }
 
   } catch (err) {
 
-    console.error(err)
+    console.error("Server error:", err)
 
-    res.status(500).json({
-      reply: "Server error"
+    return res.status(500).json({
+      reply: "Server error. Try again."
     })
+
   }
+
 }
